@@ -1,0 +1,59 @@
+name: Build our dylib
+
+# Builds spotifyglass.dylib (with the Premium module) on its own, without needing a Spotify IPA.
+# The flag table SGFlagList.m is normally read out of the IPA; the premium module does not need it,
+# so we drop in an empty stub and the dylib compiles. The result is uploaded as an artifact and,
+# when Prism wants it, injected by that site.
+
+on:
+  workflow_dispatch:
+
+env:
+  THEOS: ${{ github.workspace }}/theos
+
+jobs:
+  dylib:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - uses: actions/checkout@v5
+        with:
+          repository: theos/theos
+          path: theos
+          submodules: recursive
+
+      - name: Install tools
+        run: brew install make dpkg ldid
+
+      - name: Stub flag table
+        run: |
+          cat > tweak/Sources/Shared/Flags/SGFlagList.m <<'EOF'
+          #import "Flags.h"
+          // Stub: the real table is generated from the IPA (scripts/extract-flags.py). The premium
+          // module forces capping flags by name and needs no table, so an empty one builds fine.
+          const SGFlagDef SGFlagTable[] = {};
+          const NSUInteger SGFlagCount = 0;
+          EOF
+
+      - name: Build
+        run: env -u MAKELEVEL gmake -C tweak clean package
+
+      - name: Collect the dylib
+        run: |
+          mkdir -p out
+          found="$(find tweak/.theos/obj -name 'spotifyglass.dylib' | head -1)"
+          [ -n "$found" ] || found="$(find tweak -name 'spotifyglass.dylib' | head -1)"
+          [ -n "$found" ] || { echo "::error::spotifyglass.dylib not found"; exit 1; }
+          cp "$found" out/spotifyglass.dylib
+          ls -la out
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: spotifyglass-premium
+          path: out/spotifyglass.dylib
+          if-no-files-found: error
