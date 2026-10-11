@@ -1,0 +1,27 @@
+*.ipa
+*.mobileprovision
+*.p12
+.DS_Store
+.signing.env
+Developer/
+Distribution/
+Password*.txt
+__pycache__/
+out/
+trees/*.txt
+tweak/.theos/
+tweak/obj/
+tweak/packages/
+tweak/Sources/Shared/Flags/SGFlagList.m
+/trees/continuous
+/trees/clean
+harness/*/build/
+vendor/*/build/
+/video
+
+# secrets / tokens (never commit)
+*.token
+*token*.txt
+.secrets/
+gh_*.txt
+.env
