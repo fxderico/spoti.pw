@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.23.0](https://github.com/fxderico/spoti.pw/compare/v0.22.0...v0.23.0) (2026-10-11)
+
+
+### Features
+
+* add Spotify Premium module with a Mod Settings toggle ([081e319](https://github.com/fxderico/spoti.pw/commit/081e3196ef8be713ee0bb18b77226d7ad615eacf))
+
 ## [0.22.0](https://github.com/skopevoj/spoti.pw/compare/v0.21.1...v0.22.0) (2026-09-23)
 
 
